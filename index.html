@@ -4,65 +4,134 @@
 <script type="text/javascript">
 // DISCLAIMER: This function does require jQuery. I've used it here because the project I'm building this for already uses jQuery, so I thought why not. It can be modified quite simply to be done in raw JavaScript.  Just thought I'd let you know.
 
+var canvas = document.getElementById('container');
+var clone = document.getElementById('blurCanvasBottom');
+
+var cloneCtx = clone.getContext('2d');
+var ctx = canvas.getContext('2d');
 
 
+var w = $('#blurCanvasTop').width();
+var h = $('#blurCanvasTop').height();
 
-// This is the funtion you need to copy
-// Copy from line 9 to 34
+var ww = $(window).width();
+var wh = $(window).height();
+canvas.width = ww;
+canvas.height= wh;
+var partCount = 100;
+var particles = [];
 
-function autoType(elementClass, typingSpeed){
-  var thhis = $(elementClass);
-  thhis.css({
-    "position": "relative",
-    "display": "inline-block"
-  });
-  thhis.prepend('<div class="cursor" style="right: initial; left:0;"></div>');
-  thhis = thhis.find(".text-js");
-  var text = thhis.text().trim().split('');
-  var amntOfChars = text.length;
-  var newString = "";
-  thhis.text("|");
-  setTimeout(function(){
-    thhis.css("opacity",1);
-    thhis.prev().removeAttr("style");
-    thhis.text("");
-    for(var i = 0; i < amntOfChars; i++){
-      (function(i,char){
-        setTimeout(function() {        
-          newString += char;
-          thhis.text(newString);
-        },i*typingSpeed);
-      })(i+1,text[i]);
-    }
-  },1500);
+function particle(){
+  this.color = 'rgba(255,255,255,'+ Math.random()+')';
+  console.log(this.color);
+  this.x = randomInt(0,ww);
+  this.y = randomInt(0,wh);
+  this.direction = {
+    "x": -1 + Math.random() * 2,
+    "y": -1 + Math.random() * 2
+  };
+  this.vx = 0.3 * Math.random();
+  this.vy = 0.3 * Math.random();
+  this.radius = randomInt(2,3);
+  this.float = function(){
+    this.x += this.vx * this.direction.x;
+    this.y += this.vy * this.direction.y;
+  };
+  this.changeDirection = function (axis) {
+    this.direction[axis] *= -1;
+  };
+  this.boundaryCheck = function () {
+            if (this.x >= ww) {
+                this.x = ww;
+                this.changeDirection("x");
+            } else if (this.x <= 0) {
+                this.x = 0;
+                this.changeDirection("x");
+            }
+            if (this.y >= wh) {
+                this.y = wh;
+                this.changeDirection("y");
+            } else if (this.y <= 0) {
+                this.y = 0;
+                this.changeDirection("y");
+            }
+        };
+  this.draw = function () {
+    ctx.beginPath();
+    ctx.fillStyle = this.color;
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    ctx.fill();
+  };
 }
+function clearCanvas() {
+ cloneCtx.clearRect(0, 0, ww, wh);
+ ctx.clearRect(0, 0, ww, wh);
+}
+function createParticles(){
+  for (i=0;i<partCount;i++){
+    var p = new particle();
+    particles.push(p);
+  }
+}
+function drawParticles() {
+   for (i=0;i<particles.length;i++) {
+     p = particles[i];
+     p.draw();
+   }
+}
+function updateParticles() {
+        for (var i = particles.length - 1; i >= 0; i--) {
+            p = particles[i];
+            p.float();
+            p.boundaryCheck();
+        }
+}
+createParticles();
+drawParticles();
+function animateParticles() {
+        clearCanvas();
+        drawParticles();
+        updateParticles();
+        cloneCtx.drawImage(canvas, 0, 0);
+        requestAnimationFrame(animateParticles);
+    }
+requestAnimationFrame(animateParticles);
+cloneCtx.drawImage(canvas, 0, 0);
 
+$(window).on('resize',function(){
+  ww = $(window).width();
+  wh = $(window).height();
+  canvas.width = ww;
+  canvas.height= wh;
+  clearCanvas();
+  particles = [];
+  createParticles();
+  drawParticles();
+});
+function randomInt(min,max)
+{
+    return Math.floor(Math.random()*(max-min+1)+min);
+}
+function velocityInt(min,max)
+{
+    return Math.random()*(max-min+1)+min;
+}
 </script>
 
-	<!-- 
-  If you wish to copy this function,
-  Copy this html and classes ending in -js to make it work.
-  The h1 is optional and so is the "headline" class.
-
-  pssssst. if you use it, let me know I'd love to see it. My twitter is in the   
-  bottom corner or below
--->
-<div class="type-js headline">
-  <h1 class="text-js">Synphex</h1>
-  
+<link href='https://fonts.googleapis.com/css?family=Raleway:500,400,300,200,100' rel='stylesheet' type='text/css'>
+<canvas class="container" id="container" role="main"></canvas>
+  <div class="content">
+    <h1 class="title">Jonas Badalic</h1>
+    <p class="desc">ambitious frontend developer.</p>
+     <ul class="contact">
+      <li><a href="mailto:jonas@badalic.com">jonas@badalic.com</a></li>
+        <li>
+          <a target="_top"href="https://codepen.io/JonasB/">Codepen</a></li>
+        <li>
+          <a target="_top" href="https://twitter.com/JonasBadalic">Twitter</a></li>
+        <li><a target="_top" href="https://si.linkedin.com/in/jonasbadalic">LinkedIn</a></li>
+      </ul>
+  </div>
 </div>
-
-
-
-
-
-
-
-
-
-<!-- Personal Twitter Link -->
-<a href="https://twitter.com/Connor_Gaunt" target="_blank" class="twitterLink">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 410.155 410.155"><path d="M403.632 74.18c-9.113 4.04-18.573 7.23-28.28 9.537 10.696-10.164 18.738-22.877 23.275-37.067 1.295-4.05-3.105-7.554-6.763-5.385-13.504 8.01-28.05 14.02-43.235 17.862-.882.223-1.79.336-2.703.336-2.766 0-5.455-1.027-7.57-2.89C322.2 42.332 301.422 34.49 279.85 34.49c-9.336 0-18.76 1.456-28.015 4.326C223.163 47.71 201.04 71.36 194.1 100.54c-2.605 10.945-3.31 21.9-2.098 32.56.14 1.225-.44 2.08-.797 2.48-.627.704-1.516 1.107-2.44 1.107-.102 0-.208-.005-.313-.015-62.762-5.83-119.358-36.068-159.363-85.14-2.04-2.503-5.953-2.196-7.58.593C13.678 65.565 9.538 80.937 9.538 96.58c0 23.97 9.63 46.562 26.36 63.03-7.035-1.667-13.844-4.294-20.17-7.807-3.06-1.7-6.824.485-6.867 3.985-.438 35.612 20.412 67.3 51.646 81.57-.63.014-1.258.02-1.888.02-4.95 0-9.964-.477-14.898-1.42-3.446-.658-6.34 2.61-5.27 5.952 10.137 31.65 37.39 54.98 70 60.278-27.065 18.17-58.584 27.753-91.39 27.753l-10.226-.005c-3.15 0-5.816 2.054-6.62 5.106-.79 3.007.667 6.178 3.354 7.74 36.966 21.514 79.13 32.884 121.955 32.884 37.485 0 72.55-7.44 104.22-22.11 29.032-13.448 54.688-32.673 76.254-57.14 20.09-22.792 35.8-49.103 46.692-78.2 10.382-27.738 15.87-57.334 15.87-85.59v-1.346c0-4.537 2.05-8.806 5.63-11.712 13.586-11.03 25.416-24.014 35.16-38.59 2.574-3.85-1.484-8.674-5.718-6.796z" fill="#76A9EA"/></svg>
-</a>
-
-<a href="https://connorgaunt.com" class="credit" target="_blank">Synphex utilities.</a>
+<div class="blur blurTop"><canvas class="canvas"id="blurCanvasTop"></canvas></div>
+<div class="blur blurBottom"><canvas width="1000px" height="1000px" class="canvas" id="blurCanvasBottom"></canvas></div>
